@@ -2,6 +2,26 @@
 <html lang="en">
 <head>
   <script>
+    let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // এখানে আপনার লুকানো ইনস্টল বাটনটি দৃশ্যমান করুন
+});
+
+// আপনার কাস্টম বাটনের অনক্লিক ফাংশন
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      }
+      deferredPrompt = null;
+    });
+  }
+}
+    
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
       .then(() => console.log("Service Worker Registered"))
