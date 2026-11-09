@@ -3,30 +3,39 @@
 <head>
   <script>
     let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // এখানে আপনার লুকানো ইনস্টল বাটনটি দৃশ্যমান করুন
-});
-
-// আপনার কাস্টম বাটনের অনক্লিক ফাংশন
-function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // এখানে লুকানো ইনস্টল বাটনটি দৃশ্যমান করা হলো
+      const installBtn = document.getElementById('installBtn');
+      if (installBtn) {
+        installBtn.style.display = 'block';
       }
-      deferredPrompt = null;
     });
-  }
-}
+
+    // আপনার কাস্টম বাটনের অনক্লিক ফাংশন
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          }
+          deferredPrompt = null;
+          // ইনস্টল হয়ে গেলে বাটনটি আবার লুকিয়ে ফেলতে পারেন
+          const installBtn = document.getElementById('installBtn');
+          if (installBtn) {
+            installBtn.style.display = 'none';
+          }
+        });
+      }
+    }
     
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-      .then(() => console.log("Service Worker Registered"))
-      .catch((err) => console.log("Service Worker Failed", err));
-  }
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("Service Worker Registered"))
+        .catch((err) => console.log("Service Worker Failed", err));
+    }
   </script>
   
   <meta charset="UTF-8">
@@ -59,6 +68,22 @@ function installApp() {
     .brand { font-size: 23px; font-weight: 800; letter-spacing: .2px; }
     .brand span { color: var(--accent); }
     .tagline { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    
+    /* ইনস্টল বাটনের সুন্দর ডিজাইন */
+    #installBtn {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 14px;
+      background: linear-gradient(135deg, #62c8ff, #0098ff);
+      color: #061321;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(98,200,255,.3);
+      cursor: pointer;
+      border: none;
+    }
+
     .search { display: flex; gap: 8px; margin-bottom: 18px; }
     input {
       min-width: 0; flex: 1; padding: 14px 15px; border: 1px solid var(--line);
@@ -108,7 +133,8 @@ function installApp() {
   </style>
 </head>
 <body>
-  <button id="installBtn" onclick="installApp()" style="display:none;">অ্যাপ ইনস্টল করুন</button>
+  <!-- ইনস্টল বাটন, যা ব্রাউজার থেকে পারমিশন পেলে স্বয়ংক্রিয়ভাবে ভেসে উঠবে -->
+  <button id="installBtn" onclick="installApp()" style="display:none;">📲 অ্যাপটি ইনস্টল করুন</button>
   
   <main class="app">
     <header>
@@ -162,8 +188,7 @@ function installApp() {
   </main>
 
   <script>
-    // STEP 1: Replace PASTE_YOUR_API_KEY_HERE with your WeatherAPI key.
-    const API_KEY = "299298aa948c4f0d90911949260911";
+    const API_KEY = "এখানে আপনার API key বসাবেন";
     const BASE_URL = "https://api.weatherapi.com/v1/forecast.json";
 
     const statusBox = document.getElementById("status");
@@ -184,7 +209,7 @@ function installApp() {
     }
 
     async function loadWeather(query) {
-      if (API_KEY === "PASTE_YOUR_API_KEY_HERE") {
+      if (API_KEY === "299298aa948c4f0d90911949260911") {
         showStatus("প্রথমে কোডে আপনার WeatherAPI key বসাতে হবে।", true);
         return;
       }
@@ -246,7 +271,6 @@ function installApp() {
       `).join("");
     }
 
-    // ফর্ম সাবমিট হ্যান্ডেল করার জন্য
     document.getElementById("searchForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const query = document.getElementById("cityInput").value.trim();
@@ -255,7 +279,6 @@ function installApp() {
       }
     });
 
-    // বর্তমান লোকেশন বাটন হ্যান্ডেল করার জন্য
     document.getElementById("locationButton").addEventListener("click", () => {
       if (!navigator.geolocation) {
         showStatus("Geolocation is not supported by your browser", true);
